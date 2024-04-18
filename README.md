@@ -1,8 +1,21 @@
 # DunderMifflin
-A simple Dunder Mifflin database for demos or testing
 
-This is a set of scripts and data files that pay tribute to everybody's favorite paper company, Dunder Mifflin. 
+This is a modification of [Tim Mitchell's DunderMifflin](https://github.com/tdmitch/DunderMifflin) database.
 
-This database was built using the Microsoft Northwind database as a starting point, adapted to meet the needs of a small midwestern paper company. 
+Here is a [dbdiagram](https://dbdiagram.io/d/DunderMifflin-6621747a03593b6b615e5404) of how he has it initially setup.
 
-These scripts and data files are intended for demo use only.
+# Modifications & Goals
+
+## Table Structure
+
+Here is my [dbdiagram](https://dbdiagram.io/d/DunderMifflin-Quinns-66217df403593b6b615ef515) modifications from Tim's initial database.
+
+
+## Bringing to Life
+
+
+
+## Dashboard
+
+
+
