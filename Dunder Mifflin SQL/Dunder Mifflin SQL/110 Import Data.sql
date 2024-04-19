@@ -12,6 +12,7 @@ GO
 		-- 20200806: Changed from a static list of BULK INSERT statements to use a table-driven approach.
 						This will make it easier to add new tables as well as to change the directory name
 						for the data files.
+		-- 20240419: Added option to import from Azure Storage Account
 */
 
 
@@ -19,7 +20,12 @@ SET NOCOUNT ON
 GO
 
 DECLARE @Folder VARCHAR(500)
+-- 	-- Local Import
 SET @Folder = 'E:\github\DunderMifflin\DataFiles\'
+	-- Azure Storage Account Container
+--SET @Folder = '[Container Name]/'
+
+
 
 
 DECLARE @Files TABLE (ID SMALLINT, [FileName] NVARCHAR(100), [TableName] NVARCHAR(100))
@@ -52,6 +58,7 @@ BEGIN
 	FROM ''' + @folder + @ThisFile + '''
 	WITH (
 		KEEPIDENTITY
+		-- , DATA_SOURCE = ''[External Data Source Name]''	-- Azure Storage Account
 		, DATAFILETYPE = ''char''
 		, FIELDQUOTE = ''"''
 		, FIELDTERMINATOR = ''|''
@@ -65,4 +72,3 @@ END
 
 
 /***************************************************************************************/
-
