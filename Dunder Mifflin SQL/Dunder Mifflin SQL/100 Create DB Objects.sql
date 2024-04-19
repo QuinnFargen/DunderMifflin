@@ -15,12 +15,21 @@ GO
 
 
 
-/****** Object:  Schema [import]    Script Date: 8/5/2020 11:42:05 PM ******/
-CREATE SCHEMA [import]
-GO
 /****** Object:  Schema [staging]    Script Date: 8/5/2020 11:42:05 PM ******/
-CREATE SCHEMA [staging]
+-- CREATE SCHEMA [staging]
 GO
+
+DROP TABLE IF EXISTS [dbo].[OrderDetails]
+DROP TABLE IF EXISTS [dbo].[Orders]
+DROP TABLE IF EXISTS [dbo].[Employees]
+DROP TABLE IF EXISTS [dbo].[Customers]
+DROP TABLE IF EXISTS [dbo].[Products]
+DROP TABLE IF EXISTS [dbo].[Categories]
+DROP TABLE IF EXISTS [dbo].[Shippers]
+DROP TABLE IF EXISTS [dbo].[Suppliers]
+DROP TABLE IF EXISTS [dbo].[Regions]
+DROP TABLE IF EXISTS [dbo].[EmployeeStatus]
+
 /****** Object:  Table [dbo].[Categories]    Script Date: 8/5/2020 11:42:05 PM ******/
 SET ANSI_NULLS ON
 GO
@@ -50,7 +59,7 @@ CREATE TABLE [dbo].[Customers](
 	[ContactTitle] [varchar](100) NULL,
 	[Address] [varchar](100) NULL,
 	[City] [varchar](100) NULL,
-	[Region] [varchar](50) NULL,
+	[ST] [varchar](50) NULL,
 	[PostalCode] [varchar](50) NULL,
 	[Country] [varchar](50) NULL,
 	[Phone] [varchar](50) NULL,
@@ -58,21 +67,6 @@ CREATE TABLE [dbo].[Customers](
  CONSTRAINT [PK_Customers_1] PRIMARY KEY CLUSTERED 
 (
 	[CustomerID] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY]
-GO
-/****** Object:  Table [dbo].[EmployeeRegions]    Script Date: 8/5/2020 11:42:05 PM ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE TABLE [dbo].[EmployeeRegions](
-	[EmployeeID] [int] NOT NULL,
-	[RegionID] [int] NOT NULL,
- CONSTRAINT [PK_EmployeeRegions] PRIMARY KEY NONCLUSTERED 
-(
-	[EmployeeID] ASC,
-	[RegionID] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
@@ -94,7 +88,7 @@ CREATE TABLE [dbo].[Employees](
 	[RehireDate] [date] NULL,
 	[Address] [varchar](100) NULL,
 	[City] [varchar](100) NULL,
-	[Region] [varchar](100) NULL,
+	[ST] [varchar](100) NULL,
 	[PostalCode] [varchar](100) NULL,
 	[Country] [varchar](50) NULL,
 	[HomePhone] [varchar](100) NULL,
@@ -102,7 +96,8 @@ CREATE TABLE [dbo].[Employees](
 	[Notes] [varchar](max) NULL,
 	[ReportsTo] [int] NULL,
 	[PhotoPath] [varchar](500) NULL,
-	[EmployeeStatusID] [smallint] NULL,
+	[EmployeeStatusID] [int] NULL,
+	[RegionID] [int] NULL,
  CONSTRAINT [PK_Employees] PRIMARY KEY CLUSTERED 
 (
 	[EmployeeID] ASC
@@ -115,7 +110,7 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[EmployeeStatus](
-	[StatusID] [smallint] IDENTITY(1,1) NOT NULL,
+	[StatusID] [int] IDENTITY(1,1) NOT NULL,
 	[StatusName] [varchar](50) NULL,
  CONSTRAINT [PK_EmployeeStatus] PRIMARY KEY CLUSTERED 
 (
@@ -154,12 +149,12 @@ CREATE TABLE [dbo].[Orders](
 	[OrderDate] [datetime] NULL,
 	[RequiredDate] [datetime] NULL,
 	[ShippedDate] [datetime] NULL,
-	[ShipVia] [int] NULL,
+	[ShipperID] [int] NULL,
 	[Freight] [money] NULL,
 	[ShipName] [varchar](200) NULL,
 	[ShipAddress] [varchar](200) NULL,
 	[ShipCity] [varchar](100) NULL,
-	[ShipRegion] [varchar](100) NULL,
+	[ShipST] [varchar](100) NULL,
 	[ShipPostalCode] [varchar](50) NULL,
 	[ShipCountry] [varchar](50) NULL,
  CONSTRAINT [PK_Orders] PRIMARY KEY CLUSTERED 
@@ -245,37 +240,6 @@ CREATE TABLE [dbo].[Suppliers](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [import].[People]    Script Date: 8/5/2020 11:42:05 PM ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE TABLE [import].[People](
-	[ActorName] [varchar](200) NULL,
-	[ActorName2] [varchar](200) NULL,
-	[CharacterName] [varchar](200) NULL,
-	[CompanyName] [varchar](200) NULL,
-	[Title] [varchar](200) NULL,
-	[NumberOfEpisodes] [smallint] NULL,
-	[YearsActive] [varchar](20) NULL,
-	[Export] [bit] NULL
-) ON [PRIMARY]
-GO
-/****** Object:  Table [staging].[OrderDetailsStaging]    Script Date: 8/5/2020 11:42:05 PM ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE TABLE [staging].[OrderDetailsStaging](
-	[OrderID] [int] NOT NULL,
-	[ProductID] [int] NOT NULL,
-	[UnitPrice] [money] NOT NULL,
-	[Quantity] [smallint] NOT NULL,
-	[Discount] [real] NOT NULL
-) ON [PRIMARY]
-GO
-SET ANSI_PADDING ON
-GO
 /****** Object:  Index [CategoryName]    Script Date: 8/5/2020 11:42:05 PM ******/
 CREATE NONCLUSTERED INDEX [CategoryName] ON [dbo].[Categories]
 (
@@ -308,14 +272,7 @@ CREATE NONCLUSTERED INDEX [PostalCode] ON [dbo].[Customers]
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [Region]    Script Date: 8/5/2020 11:42:05 PM ******/
-CREATE NONCLUSTERED INDEX [Region] ON [dbo].[Customers]
-(
-	[Region] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-GO
-SET ANSI_PADDING ON
-GO
+
 /****** Object:  Index [LastName]    Script Date: 8/5/2020 11:42:05 PM ******/
 CREATE NONCLUSTERED INDEX [LastName] ON [dbo].[Employees]
 (
@@ -381,7 +338,7 @@ GO
 /****** Object:  Index [ShippersOrders]    Script Date: 8/5/2020 11:42:05 PM ******/
 CREATE NONCLUSTERED INDEX [ShippersOrders] ON [dbo].[Orders]
 (
-	[ShipVia] ASC
+	[ShipperID] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
 SET ANSI_PADDING ON
@@ -458,18 +415,6 @@ ALTER TABLE [dbo].[Products] ADD  CONSTRAINT [DF_Products_ReorderLevel]  DEFAULT
 GO
 ALTER TABLE [dbo].[Products] ADD  CONSTRAINT [DF_Products_Discontinued]  DEFAULT ((0)) FOR [Discontinued]
 GO
-ALTER TABLE [import].[People] ADD  DEFAULT ((1)) FOR [Export]
-GO
-ALTER TABLE [dbo].[EmployeeRegions]  WITH CHECK ADD  CONSTRAINT [FK_EmployeeRegions_Employees] FOREIGN KEY([EmployeeID])
-REFERENCES [dbo].[Employees] ([EmployeeID])
-GO
-ALTER TABLE [dbo].[EmployeeRegions] CHECK CONSTRAINT [FK_EmployeeRegions_Employees]
-GO
-ALTER TABLE [dbo].[EmployeeRegions]  WITH CHECK ADD  CONSTRAINT [FK_EmployeeRegions_Region] FOREIGN KEY([RegionID])
-REFERENCES [dbo].[Regions] ([RegionID])
-GO
-ALTER TABLE [dbo].[EmployeeRegions] CHECK CONSTRAINT [FK_EmployeeRegions_Region]
-GO
 ALTER TABLE [dbo].[Employees]  WITH NOCHECK ADD  CONSTRAINT [FK_Employees_Employees] FOREIGN KEY([ReportsTo])
 REFERENCES [dbo].[Employees] ([EmployeeID])
 GO
@@ -500,7 +445,7 @@ REFERENCES [dbo].[Employees] ([EmployeeID])
 GO
 ALTER TABLE [dbo].[Orders] CHECK CONSTRAINT [FK_Orders_Employees]
 GO
-ALTER TABLE [dbo].[Orders]  WITH NOCHECK ADD  CONSTRAINT [FK_Orders_Shippers] FOREIGN KEY([ShipVia])
+ALTER TABLE [dbo].[Orders]  WITH NOCHECK ADD  CONSTRAINT [FK_Orders_Shippers] FOREIGN KEY([ShipperID])
 REFERENCES [dbo].[Shippers] ([ShipperID])
 GO
 ALTER TABLE [dbo].[Orders] CHECK CONSTRAINT [FK_Orders_Shippers]
