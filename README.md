@@ -27,8 +27,6 @@ The daily DAG file will insert fake sales and then execute a stored procedure to
 
 ## Dashboard Monitoring
 
-Docker was used to host Metabase for developing [reporting](https://themichaelscottpapercompany.org/public/dashboard/84a122b6-81bb-4c23-af6e-912a2ef068fb).
-[Nginx](https://www.nginx.com) was used for reverse proxying metabase to an obligatory domain purchase of [TheMichaelScottPaperCompany.org](https://themichaelscottpapercompany.org).
-(yes... the .com was already taken)
-Please reach out to me if guest access is wanted to metabase or the active database.
+Docker was used to host Metabase for developing [reporting](https://themichaelscottpapercompany.org/public/dashboard/84a122b6-81bb-4c23-af6e-912a2ef068fb).  [Nginx](https://www.nginx.com) was used for reverse proxying metabase to an obligatory domain purchase of [TheMichaelScottPaperCompany.org](https://themichaelscottpapercompany.org).
+(yes... the .com was already taken)  Please reach out to me if guest access is wanted to metabase or the active database.
 
