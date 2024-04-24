@@ -16,20 +16,39 @@ GO
 
 
 /****** Object:  Schema [staging]    Script Date: 8/5/2020 11:42:05 PM ******/
--- CREATE SCHEMA [staging]
+--CREATE SCHEMA [staging]
 GO
 
 DROP TABLE IF EXISTS [dbo].[OrderDetails]
 DROP TABLE IF EXISTS [dbo].[Orders]
 DROP TABLE IF EXISTS [dbo].[Employees]
 DROP TABLE IF EXISTS [dbo].[Customers]
+DROP TABLE IF EXISTS [dbo].[Inventory]
 DROP TABLE IF EXISTS [dbo].[Products]
 DROP TABLE IF EXISTS [dbo].[Categories]
 DROP TABLE IF EXISTS [dbo].[Shippers]
 DROP TABLE IF EXISTS [dbo].[Suppliers]
 DROP TABLE IF EXISTS [dbo].[Regions]
 DROP TABLE IF EXISTS [dbo].[EmployeeStatus]
+DROP TABLE IF EXISTS [dbo].[Affiliates]
+DROP TABLE IF EXISTS [staging].[FakeSales]
 
+/****** Object:  Table [dbo].[Affiliates]    Script Date: 4/23/2024 2:59:06 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Affiliates](
+	[AffiliateID] [int] IDENTITY(1,1) NOT NULL,
+	[AffiliateName] [varchar](50) NOT NULL,
+	[Description] [varchar](500) NULL,
+	[LandingUrl] [varchar](500) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[AffiliateID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
 /****** Object:  Table [dbo].[Categories]    Script Date: 8/5/2020 11:42:05 PM ******/
 SET ANSI_NULLS ON
 GO
@@ -53,7 +72,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[Customers](
 	[CustomerID] [int] NOT NULL,
-	[CustomerCode] [nchar](5) NOT NULL,
+	[AffiliateID] [int] NOT NULL,
 	[CompanyName] [varchar](200) NOT NULL,
 	[ContactName] [varchar](100) NULL,
 	[ContactTitle] [varchar](100) NULL,
@@ -77,6 +96,8 @@ SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[Employees](
 	[EmployeeID] [int] IDENTITY(1,1) NOT NULL,
+	[EmployeeStatusID] [int] NULL,
+	[RegionID] [int] NULL,
 	[LastName] [varchar](100) NOT NULL,
 	[FirstName] [varchar](100) NOT NULL,
 	[MiddleName] [varchar](100) NULL,
@@ -96,8 +117,6 @@ CREATE TABLE [dbo].[Employees](
 	[Notes] [varchar](max) NULL,
 	[ReportsTo] [int] NULL,
 	[PhotoPath] [varchar](500) NULL,
-	[EmployeeStatusID] [int] NULL,
-	[RegionID] [int] NULL,
  CONSTRAINT [PK_Employees] PRIMARY KEY CLUSTERED 
 (
 	[EmployeeID] ASC
@@ -116,6 +135,32 @@ CREATE TABLE [dbo].[EmployeeStatus](
 (
 	[StatusID] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Inventory]    Script Date: 4/23/2024 2:59:06 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Inventory](
+	[InventoryID] [int] IDENTITY(1,1) NOT NULL,
+	[ProductID] [int] NOT NULL,
+	[StartDate] [date] NOT NULL,
+	[EndDate] [date] NULL,
+	[IsActive]  AS (case when [EndDate] IS NULL then (1) else (0) end),
+	[UnitPrice] [money] NULL,
+	[UnitsInStock] [smallint] NULL,
+	[UnitsOnOrder] [smallint] NULL,
+	[ReorderLevel] [smallint] NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[InventoryID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY],
+ CONSTRAINT [Unq_ProductIDEndDate] UNIQUE NONCLUSTERED 
+(
+	[ProductID] ASC,
+	[EndDate] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
 /****** Object:  Table [dbo].[OrderDetails]    Script Date: 8/5/2020 11:42:05 PM ******/
@@ -151,12 +196,8 @@ CREATE TABLE [dbo].[Orders](
 	[ShippedDate] [datetime] NULL,
 	[ShipperID] [int] NULL,
 	[Freight] [money] NULL,
-	[ShipName] [varchar](200) NULL,
-	[ShipAddress] [varchar](200) NULL,
-	[ShipCity] [varchar](100) NULL,
-	[ShipST] [varchar](100) NULL,
-	[ShipPostalCode] [varchar](50) NULL,
-	[ShipCountry] [varchar](50) NULL,
+	[OrderTotal] [money] NULL,
+	[DiscountTotal] [money] NULL,
  CONSTRAINT [PK_Orders] PRIMARY KEY CLUSTERED 
 (
 	[OrderID] ASC
@@ -172,14 +213,9 @@ CREATE TABLE [dbo].[Products](
 	[ProductID] [int] IDENTITY(1,1) NOT NULL,
 	[ProductName] [varchar](100) NOT NULL,
 	[ProductDescription] [varchar](max) NULL,
+	[QuantityPerUnit] [varchar](50) NULL,
 	[SupplierID] [int] NULL,
 	[CategoryID] [int] NULL,
-	[QuantityPerUnit] [varchar](50) NULL,
-	[UnitPrice] [money] NULL,
-	[UnitsInStock] [smallint] NULL,
-	[UnitsOnOrder] [smallint] NULL,
-	[ReorderLevel] [smallint] NULL,
-	[Discontinued] [bit] NOT NULL,
  CONSTRAINT [PK_Products] PRIMARY KEY CLUSTERED 
 (
 	[ProductID] ASC
@@ -228,7 +264,7 @@ CREATE TABLE [dbo].[Suppliers](
 	[ContactTitle] [varchar](50) NULL,
 	[Address] [varchar](60) NULL,
 	[City] [varchar](50) NULL,
-	[Region] [varchar](50) NULL,
+	[ST] [varchar](50) NULL,
 	[PostalCode] [varchar](50) NULL,
 	[Country] [varchar](50) NULL,
 	[Phone] [varchar](50) NULL,
@@ -238,6 +274,27 @@ CREATE TABLE [dbo].[Suppliers](
 (
 	[SupplierID] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [staging].[FakeSales]    Script Date: 8/5/2020 11:42:05 PM ******/ 
+CREATE TABLE [staging].[FakeSales](
+	[FakeSaleID] [int] IDENTITY(1,1) NOT NULL,
+	[InsertDate] [datetime2](7) NOT NULL,
+	[Customer] [varchar](max) NULL,
+	[Order] [varchar](max) NULL,
+	[SaleDate] [date] NULL,
+	[IsProcessed] [tinyint] NOT NULL
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+ALTER TABLE [staging].[FakeSales] ADD  DEFAULT (getdate()) FOR [InsertDate]
+GO
+ALTER TABLE [staging].[FakeSales] ADD  DEFAULT ((0)) FOR [IsProcessed]
+GO
+/****** Object:  Table [staging].[EmpSaleRate]    Script Date: 8/5/2020 11:42:05 PM ******/ 
+CREATE TABLE [staging].[EmpSaleRate](
+	[EmployeeID] [int] NOT NULL,
+	[SaleRateMin] [float] NOT NULL,
+	[SaleRateMax] [float] NOT NULL
 ) ON [PRIMARY]
 GO
 /****** Object:  Index [CategoryName]    Script Date: 8/5/2020 11:42:05 PM ******/
@@ -343,12 +400,6 @@ CREATE NONCLUSTERED INDEX [ShippersOrders] ON [dbo].[Orders]
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [ShipPostalCode]    Script Date: 8/5/2020 11:42:05 PM ******/
-CREATE NONCLUSTERED INDEX [ShipPostalCode] ON [dbo].[Orders]
-(
-	[ShipPostalCode] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-GO
 /****** Object:  Index [CategoriesProducts]    Script Date: 8/5/2020 11:42:05 PM ******/
 CREATE NONCLUSTERED INDEX [CategoriesProducts] ON [dbo].[Products]
 (
@@ -404,16 +455,6 @@ GO
 ALTER TABLE [dbo].[OrderDetails] ADD  CONSTRAINT [DF_Order_Details_Discount]  DEFAULT ((0)) FOR [Discount]
 GO
 ALTER TABLE [dbo].[Orders] ADD  CONSTRAINT [DF_Orders_Freight]  DEFAULT ((0)) FOR [Freight]
-GO
-ALTER TABLE [dbo].[Products] ADD  CONSTRAINT [DF_Products_UnitPrice]  DEFAULT ((0)) FOR [UnitPrice]
-GO
-ALTER TABLE [dbo].[Products] ADD  CONSTRAINT [DF_Products_UnitsInStock]  DEFAULT ((0)) FOR [UnitsInStock]
-GO
-ALTER TABLE [dbo].[Products] ADD  CONSTRAINT [DF_Products_UnitsOnOrder]  DEFAULT ((0)) FOR [UnitsOnOrder]
-GO
-ALTER TABLE [dbo].[Products] ADD  CONSTRAINT [DF_Products_ReorderLevel]  DEFAULT ((0)) FOR [ReorderLevel]
-GO
-ALTER TABLE [dbo].[Products] ADD  CONSTRAINT [DF_Products_Discontinued]  DEFAULT ((0)) FOR [Discontinued]
 GO
 ALTER TABLE [dbo].[Employees]  WITH NOCHECK ADD  CONSTRAINT [FK_Employees_Employees] FOREIGN KEY([ReportsTo])
 REFERENCES [dbo].[Employees] ([EmployeeID])
@@ -475,20 +516,4 @@ GO
 ALTER TABLE [dbo].[OrderDetails]  WITH NOCHECK ADD  CONSTRAINT [CK_UnitPrice] CHECK  (([UnitPrice]>=(0)))
 GO
 ALTER TABLE [dbo].[OrderDetails] CHECK CONSTRAINT [CK_UnitPrice]
-GO
-ALTER TABLE [dbo].[Products]  WITH NOCHECK ADD  CONSTRAINT [CK_Products_UnitPrice] CHECK  (([UnitPrice]>=(0)))
-GO
-ALTER TABLE [dbo].[Products] CHECK CONSTRAINT [CK_Products_UnitPrice]
-GO
-ALTER TABLE [dbo].[Products]  WITH NOCHECK ADD  CONSTRAINT [CK_ReorderLevel] CHECK  (([ReorderLevel]>=(0)))
-GO
-ALTER TABLE [dbo].[Products] CHECK CONSTRAINT [CK_ReorderLevel]
-GO
-ALTER TABLE [dbo].[Products]  WITH NOCHECK ADD  CONSTRAINT [CK_UnitsInStock] CHECK  (([UnitsInStock]>=(0)))
-GO
-ALTER TABLE [dbo].[Products] CHECK CONSTRAINT [CK_UnitsInStock]
-GO
-ALTER TABLE [dbo].[Products]  WITH NOCHECK ADD  CONSTRAINT [CK_UnitsOnOrder] CHECK  (([UnitsOnOrder]>=(0)))
-GO
-ALTER TABLE [dbo].[Products] CHECK CONSTRAINT [CK_UnitsOnOrder]
 GO

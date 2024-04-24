@@ -37,12 +37,9 @@ UNION ALL SELECT 3, 'Shippers.txt'			, '[dbo].[Shippers]'
 UNION ALL SELECT 4, 'Categories.txt'		, '[dbo].[Categories]'
 UNION ALL SELECT 5, 'EmployeeStatus.txt'	, '[dbo].[EmployeeStatus]'
 UNION ALL SELECT 6, 'Employees.txt'			, '[dbo].[Employees]'
-UNION ALL SELECT 7, 'Customers.txt'			, '[dbo].[Customers]'
-UNION ALL SELECT 8, 'Products.txt'			, '[dbo].[Products]'
-UNION ALL SELECT 9, 'Orders1.txt'			, '[dbo].[Orders]'
-UNION ALL SELECT 10, 'Orders2.txt'			, '[dbo].[Orders]'
-UNION ALL SELECT 11, 'OrderDetails1.txt'	, '[dbo].[OrderDetails]'
-UNION ALL SELECT 12, 'OrderDetails2.txt'	, '[dbo].[OrderDetails]'
+UNION ALL SELECT 7, 'Products.txt'			, '[dbo].[Products]'
+UNION ALL SELECT 8, 'Affiliates.txt'		, '[dbo].[Affiliates]'
+UNION ALL SELECT 9, 'Inventory.txt'			, '[dbo].[Inventory]'
 
 DECLARE @sql NVARCHAR(1000)
 DECLARE @i INT = 1
