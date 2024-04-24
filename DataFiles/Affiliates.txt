@@ -1,0 +1,6 @@
+1|Direct|Direct traffic to homepage|themichaelscottpapercompany.org
+2|DirectMail|Direct Mail letter traffic|themichaelscottpapercompany.org/DirectMail
+3|Email|Email traffic|themichaelscottpapercompany.org/Email
+4|Influencer|Influencer traffic|themichaelscottpapercompany.org/Influencer
+5|Search|Search Engine traffic|themichaelscottpapercompany.org/Search
+6|Social|Social Media traffic|themichaelscottpapercompany.org/Social

@@ -12,3 +12,4 @@
 12|Yonkers, NY|0
 13|Albany, NY|1
 14|Nashua, NH|1
+15|Tallahassee, FL|1
