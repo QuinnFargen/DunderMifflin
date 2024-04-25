@@ -40,6 +40,7 @@ UNION ALL SELECT 6, 'Employees.txt'			, '[dbo].[Employees]'
 UNION ALL SELECT 7, 'Products.txt'			, '[dbo].[Products]'
 UNION ALL SELECT 8, 'Affiliates.txt'		, '[dbo].[Affiliates]'
 UNION ALL SELECT 9, 'Inventory.txt'			, '[dbo].[Inventory]'
+UNION ALL SELECT 10,'EmpSaleRate.txt'		, '[staging].[EmpSaleRate]'
 
 DECLARE @sql NVARCHAR(1000)
 DECLARE @i INT = 1

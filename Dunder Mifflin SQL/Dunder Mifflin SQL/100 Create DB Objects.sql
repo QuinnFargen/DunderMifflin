@@ -16,7 +16,7 @@ GO
 
 
 /****** Object:  Schema [staging]    Script Date: 8/5/2020 11:42:05 PM ******/
---CREATE SCHEMA [staging]
+CREATE SCHEMA [staging]
 GO
 
 DROP TABLE IF EXISTS [dbo].[OrderDetails]
@@ -32,6 +32,7 @@ DROP TABLE IF EXISTS [dbo].[Regions]
 DROP TABLE IF EXISTS [dbo].[EmployeeStatus]
 DROP TABLE IF EXISTS [dbo].[Affiliates]
 DROP TABLE IF EXISTS [staging].[FakeSales]
+DROP TABLE IF EXISTS [staging].[EmpSaleRate]
 
 /****** Object:  Table [dbo].[Affiliates]    Script Date: 4/23/2024 2:59:06 PM ******/
 SET ANSI_NULLS ON
@@ -71,7 +72,7 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[Customers](
-	[CustomerID] [int] NOT NULL,
+	[CustomerID] [int] NOT NULL IDENTITY(1,1),
 	[AffiliateID] [int] NOT NULL,
 	[CompanyName] [varchar](200) NOT NULL,
 	[ContactName] [varchar](100) NULL,
@@ -283,12 +284,10 @@ CREATE TABLE [staging].[FakeSales](
 	[Customer] [varchar](max) NULL,
 	[Order] [varchar](max) NULL,
 	[SaleDate] [date] NULL,
-	[IsProcessed] [tinyint] NOT NULL
+	[ProcessedDate] [datetime2](7) NULL
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 ALTER TABLE [staging].[FakeSales] ADD  DEFAULT (getdate()) FOR [InsertDate]
-GO
-ALTER TABLE [staging].[FakeSales] ADD  DEFAULT ((0)) FOR [IsProcessed]
 GO
 /****** Object:  Table [staging].[EmpSaleRate]    Script Date: 8/5/2020 11:42:05 PM ******/ 
 CREATE TABLE [staging].[EmpSaleRate](
