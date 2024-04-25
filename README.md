@@ -14,7 +14,8 @@ These sales will be monitored with a Metabase dashboard hosted at url above.
 ## Database Design
 
 Here is my [dbdiagram](https://dbdiagram.io/d/DunderMifflin-Quinns-66217df403593b6b615ef515) modifications from Tim's initial database.
-The main change is a [new business model](https://youtu.be/r-GFmH0EK9Y?si=BZb3Tn5cemq1GEND&t=236) of DTC, this fit better the new/fake daily sales plan.
+The main change is a [new business model](https://youtu.be/r-GFmH0EK9Y?si=BZb3Tn5cemq1GEND&t=236) of online non-regional, this fit better the new/fake daily sales plan.
+Currently this project is using an [Azure SQL DB](https://azure.microsoft.com/en-us/products/azure-sql/database) with the below modifications from Tim's repo.
 
 - Added Azure external data source to import source data from Azure storage account.
 - Added Inventory dimension and moved columns from Products to new table.
@@ -34,3 +35,10 @@ Everyday the DAG file will insert fake sales and then execute a stored procedure
 [Docker](https://www.docker.com/products/docker-desktop/) was used to host [Metabase](https://www.metabase.com) and [Nginx](https://hub.docker.com/r/jc21/nginx-proxy-manager) for developing reporting on [TheMichaelScottPaperCompany.org](https://themichaelscottpapercompany.org)<br> 
 Please reach out to me if guest access is wanted to metabase or the active database.
 
+
+## Future Additions
+
+- Modify customer creation for returning customers. Currently random/new each order.
+- Replicate project using PostgreSQL instead of Azure/MSSQL.
+- Test out Apache Superset in addition to Metabase for a dashboard.
+- Add an OLAP layer with Apache Pinot or ClickHouse.
